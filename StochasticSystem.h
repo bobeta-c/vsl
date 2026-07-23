@@ -7,6 +7,8 @@
 #include <cmath>
 #include <cstdlib>
 
+#include "Config.h" // For constants like temperature, drift strength, etc.
+
 // Define a type for our potential/distortion functions
 typedef float (*PotentialFunction)(Vector3, float);
 
@@ -28,7 +30,7 @@ private:
 
     // Numerical Gradient: Approximates the uphill direction of your function
     Vector3 ComputeGradient(Vector3 pos, float time, PotentialFunction func) {
-        float eps = 0.01f;
+        float eps = Config::GRAD_EPSILON; // Small step for numerical differentiation
         Vector3 grad;
         
         // Central difference approximation for partial derivatives
@@ -41,8 +43,8 @@ private:
 
 public:
     StochasticSystem(int count, float baseRadius) {
-        temperature = 0.5f;
-        driftStrength = 2.0f;
+        temperature = Config::TEMPERATURE;
+        driftStrength = Config::DRIFT_STRENGTH;
 
         // Initialize particles randomly on the base sphere
         for (int i = 0; i < count; i++) {
@@ -90,7 +92,7 @@ public:
             Vector3 drawPos = Vector3Scale(Vector3Normalize(p.basePos), actualRadius);
             
             // Draw a tiny sphere for each particle
-            DrawSphere(drawPos, 0.08f, p.color);
+            DrawSphere(drawPos, Config::PARTICLE_SIZE, p.color);
         }
     }
 };
