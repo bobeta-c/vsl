@@ -135,6 +135,8 @@ int main(void) {
         baseVertices[i] = sphereMesh.vertices[i];
     }
 
+    sphereMesh.colors = (unsigned char*)MemAlloc(vertexCount * 4 * sizeof(unsigned char));
+
     // Initialize 1000 stochastic particles
     StochasticSystem particleSystem(Config::PARTICLE_COUNT, Config::BASE_RADIUS);
 
@@ -169,22 +171,38 @@ int main(void) {
         PotentialFunction currentFunc = potentials[currentFunctionIndex];
         
         // Update the manifold geometry
+        // Update the manifold geometry and colors
         for (int i = 0; i < vertexCount; i++) {
             Vector3 basePos = { baseVertices[i*3], baseVertices[i*3 + 1], baseVertices[i*3 + 2] };
-            float currentRadius = Vector3Length(basePos);
-            Vector3 normal = Vector3Scale(basePos, 1.0f / currentRadius);
+            Vector3 normal = Vector3Normalize(basePos);
             
-            float wave = currentFunc(basePos, time);
-            float newRadius = Config::BASE_RADIUS + (Config::DISTORTION_AMPLITUDE * wave);
+            // 1. The Physics Field (Hidden)
+            // We sample the complex energy landscape, but we DO NOT distort the mesh with it.
+            float energy = currentFunc(basePos, time);
             
-            Vector3 newPos = Vector3Scale(normal, newRadius);
-            
+            // 2. The Render Field (Smooth Sphere)
+            // The physical mesh remains a perfect, smooth sphere.
+            Vector3 newPos = Vector3Scale(normal, Config::BASE_RADIUS);
             sphereMesh.vertices[i*3] = newPos.x;
             sphereMesh.vertices[i*3 + 1] = newPos.y;
             sphereMesh.vertices[i*3 + 2] = newPos.z;
+
+            // 3. The Visual Bridge (Color Mapping)
+            // Normalize the energy to a 0.0 to 1.0 range (clamped for safety against massive storm peaks)
+            float blend = (energy + 1.0f) * 0.5f;
+            if (blend < 0.0f) blend = 0.0f;
+            if (blend > 1.0f) blend = 1.0f;
+
+            // Interpolate between WIREFRAME_COLOR (peaks) and MANIFOLD_COLOR (wells)
+            sphereMesh.colors[i*4]     = (unsigned char)(Config::WIREFRAME_COLOR.r * blend + Config::MANIFOLD_COLOR.r * (1.0f - blend));
+            sphereMesh.colors[i*4 + 1] = (unsigned char)(Config::WIREFRAME_COLOR.g * blend + Config::MANIFOLD_COLOR.g * (1.0f - blend));
+            sphereMesh.colors[i*4 + 2] = (unsigned char)(Config::WIREFRAME_COLOR.b * blend + Config::MANIFOLD_COLOR.b * (1.0f - blend));
+            sphereMesh.colors[i*4 + 3] = 255; // Alpha
         }
 
+        // Upload the new vertices (Index 0) and the new colors (Index 3) to the GPU
         UpdateMeshBuffer(sphereMesh, 0, sphereMesh.vertices, vertexCount * 3 * sizeof(float), 0);
+        UpdateMeshBuffer(sphereMesh, 3, sphereMesh.colors, vertexCount * 4 * sizeof(unsigned char), 0);
 
         // Update the physics of the stochastic particles
         particleSystem.Update(dt, time, currentFunc, Config::BASE_RADIUS);

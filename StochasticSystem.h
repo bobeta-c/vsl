@@ -67,16 +67,18 @@ public:
             // 1. Calculate drift (Stochastic Gradient Descent)
             Vector3 gradient = ComputeGradient(p.basePos, time, currentFunc);
             
-            // 2. Calculate diffusion (Brownian motion)
+            Vector3 normal = Vector3Normalize(p.basePos);
+
+            Vector3 curl = Vector3CrossProduct(gradient, normal);
+
             float noiseScale = sqrt(2.0f * temperature * dt * Config::FRICTION);
             Vector3 noise = { RandomFloat(), RandomFloat(), RandomFloat() };
             noise = Vector3Scale(noise, noiseScale);
 
             // 3. Apply Euler-Maruyama: dX = \nabla F dt + \sqrt{2D} dW
-            p.velocity.x += (-Config::FRICTION * p.velocity.x - gradient.x * Config::DRIFT_STRENGTH) * dt + noise.x;
-            p.velocity.y += (-Config::FRICTION * p.velocity.y - gradient.y * Config::DRIFT_STRENGTH) * dt + noise.y;
-            p.velocity.z += (-Config::FRICTION * p.velocity.z - gradient.z * Config::DRIFT_STRENGTH) * dt + noise.z;
-
+            p.velocity.x += (-Config::FRICTION * p.velocity.x - gradient.x * Config::DRIFT_STRENGTH + curl.x * Config::CURL_STRENGTH) * dt + noise.x;
+            p.velocity.y += (-Config::FRICTION * p.velocity.y - gradient.y * Config::DRIFT_STRENGTH + curl.y * Config::CURL_STRENGTH) * dt + noise.y;
+            p.velocity.z += (-Config::FRICTION * p.velocity.z - gradient.z * Config::DRIFT_STRENGTH + curl.z * Config::CURL_STRENGTH) * dt + noise.z;
             // 4. Update POSITION using the new velocity
             p.basePos.x += p.velocity.x * dt;
             p.basePos.y += p.velocity.y * dt;

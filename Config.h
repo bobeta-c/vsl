@@ -31,6 +31,8 @@ namespace Config {
     constexpr float GRAD_EPSILON = 0.01f;  // Numerical differentiation step
     constexpr float FRICTION = 0.5f;
 
+    constexpr float CURL_STRENGTH = 2.5f; // For swirling effects in the stochastic system
+
     // --- Solarized Dark Theme ---
     // Background: Deep dark blue-gray (base03)
     constexpr Color BG_COLOR = {0, 43, 54, 255};      
