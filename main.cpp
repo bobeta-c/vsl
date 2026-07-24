@@ -117,7 +117,7 @@ float StormFunction(Vector3 basePos, float time) {
 int main(void) {
     srand(time(NULL)); // Seed the random number generator
     
-    InitWindow(Config::SCREEN_WIDTH, Config::SCREEN_HEIGHT, "Manifold Fokker-Planck Visualizer");
+    InitWindow(Config::SCREEN_WIDTH, Config::SCREEN_HEIGHT, "Manifold Fokker-Planck - Solarized SGD");
 
     Camera3D camera = { 0 };
     camera.position = (Vector3){ 15.0f, 15.0f, 15.0f };
@@ -190,12 +190,12 @@ int main(void) {
         particleSystem.Update(dt, time, currentFunc, Config::BASE_RADIUS);
 
         BeginDrawing();
-            ClearBackground(RAYWHITE);
+            ClearBackground(Config::BG_COLOR);
             BeginMode3D(camera);
                 
                 // Draw the wireframe manifold
-                DrawModelWires(sphereModel, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, {0, 50, 150, 100});
-                
+                DrawModelWires(sphereModel, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, Config::WIREFRAME_COLOR);
+                DrawModel(sphereModel, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, Config::MANIFOLD_COLOR);
                 // Draw the diffusing particles
                 particleSystem.Draw(time, currentFunc, Config::BASE_RADIUS, Config::DISTORTION_AMPLITUDE);
 

@@ -29,6 +29,18 @@ namespace Config {
     constexpr float TEMPERATURE = 1.0f;    // Diffusion (D)
     constexpr float DRIFT_STRENGTH = 3.0f; // Gradient pull
     constexpr float GRAD_EPSILON = 0.01f;  // Numerical differentiation step
+    constexpr float FRICTION = 0.5f;
+
+    // --- Solarized Dark Theme ---
+    // Background: Deep dark blue-gray (base03)
+    constexpr Color BG_COLOR = {0, 43, 54, 255};      
+    // Wireframe/Base Mesh: Darker gray (base02)
+    constexpr Color WIREFRAME_COLOR = {7, 54, 66, 255};  
+    // Wave/Distortion Highlights: Cyan
+    constexpr Color MANIFOLD_COLOR = {42, 161, 152, 255}; 
+    // Particles: Bright Yellow or Magenta for high contrast
+    constexpr Color PARTICLE_COLOR = {181, 137, 0, 255};  // Solarized Yellow
+    // constexpr Color PARTICLE_COLOR = {211, 54, 130, 255}; // Optional: Solarized Magent
 }
 
 #endif
