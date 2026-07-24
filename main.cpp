@@ -127,7 +127,6 @@ int main(void) {
     camera.projection = CAMERA_PERSPECTIVE;
 
     Mesh sphereMesh = GenMeshSphere(Config::BASE_RADIUS, 64, 64);
-    Model sphereModel = LoadModelFromMesh(sphereMesh);
     
     int vertexCount = sphereMesh.vertexCount;
     float* baseVertices = (float*)MemAlloc(vertexCount * 3 * sizeof(float));
@@ -136,6 +135,10 @@ int main(void) {
     }
 
     sphereMesh.colors = (unsigned char*)MemAlloc(vertexCount * 4 * sizeof(unsigned char));
+    for (int i = 0; i < vertexCount * 4; i++) {
+        sphereMesh.colors[i] = 255; 
+    }
+    Model sphereModel = LoadModelFromMesh(sphereMesh);
 
     // Initialize 1000 stochastic particles
     StochasticSystem particleSystem(Config::PARTICLE_COUNT, Config::BASE_RADIUS);
